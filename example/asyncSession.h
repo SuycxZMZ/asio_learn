@@ -1,6 +1,7 @@
 #ifndef ASYNCSESSION_H
 #define ASYNCSESSION_H
 #include <boost/asio.hpp>
+#include <boost/asio/detail/socket_ops.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/system/detail/error_code.hpp>
 #include <boost/uuid/random_generator.hpp>
@@ -15,6 +16,7 @@
 
 #define HEADER_LENGTH 2
 #define MAX_LENGTH 1024 * 2
+#define MAX_SENDQUE_SIZE 1000
 
 using namespace boost::asio;
 
@@ -79,7 +81,11 @@ public:
   MsgNode(char *msg, int max_len)
       : _max_len(max_len + HEADER_LENGTH), _cur_len(0) {
     _data = new char[_max_len + 1];
-    memcpy(_data, &max_len, HEADER_LENGTH);
+    // 转为网络字节序
+    int max_len_host =
+        boost::asio::detail::socket_ops::host_to_network_short(max_len);
+    // _max_len = boost::asio::detail::socket_ops::host_to_network_short(_max_len);
+    memcpy(_data, &max_len_host, HEADER_LENGTH);
     memcpy(_data + HEADER_LENGTH, msg, max_len);
     _data[_max_len] = '\0';
   }

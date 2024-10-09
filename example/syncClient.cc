@@ -1,6 +1,7 @@
 #include "asyncSession.h"
 #include <boost/asio.hpp>
 #include <boost/asio/buffer.hpp>
+#include <boost/asio/detail/socket_ops.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/ip/address.hpp>
@@ -34,9 +35,13 @@ int main() {
       for (;;) {
         std::this_thread::sleep_for(std::chrono::milliseconds(2));
         const char *request = "hello world!";
-        size_t request_length = strlen(request);
+        short request_length = strlen(request);
         char send_data[MAX_LENGTH] = {0};
-        memcpy(send_data, &request_length, 2);
+        // 转为网络字节序
+        short request_host_length =
+            boost::asio::detail::socket_ops::host_to_network_short(
+                request_length);
+        memcpy(send_data, &request_host_length, 2);
         memcpy(send_data + 2, request, request_length);
         boost::asio::write(sock,
                            boost::asio::buffer(send_data, request_length + 2));
@@ -51,6 +56,8 @@ int main() {
             sock, boost::asio::buffer(reply_head, HEADER_LENGTH));
         short msglen = 0;
         memcpy(&msglen, reply_head, HEADER_LENGTH);
+        // 转为本地字节序
+        msglen = boost::asio::detail::socket_ops::network_to_host_short(msglen);
         char msg[MAX_LENGTH] = {0};
         size_t msg_length =
             boost::asio::read(sock, boost::asio::buffer(msg, msglen));
