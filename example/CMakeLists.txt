@@ -1,12 +1,13 @@
 find_package(Boost REQUIRED COMPONENTS system)
 
 # 公共链接库
-set(COMMON_LIBS Boost::system pthread)
+set(COMMON_LIBS Boost::system pthread jsoncpp)
 
 set(TEST_SOURCES
   boostTest.cc
   syncClient.cc
   syncServer.cc
+  ./jsonExample/jsonDemo.cc
 )
 
 # 自定义函数，用于编译每个 .cc 文件为同名的可执行文件
@@ -30,7 +31,7 @@ set(asyncServer_list asyncServer.cc asyncSession.cc)
 add_executable(asyncServer ${asyncServer_list})
 target_link_libraries(asyncServer ${COMMON_LIBS})
 
-# set(protoDemo_list protoExample/demo.cc protoExample/msg.pb.cc)
-# add_executable(protoDemo ${protoDemo_list})
-# target_link_libraries(protoDemo pthread protobuf)
-add_subdirectory(protoExample)
+set(protoDemo_list protoExample/demo.cc protoExample/msg.pb.cc)
+add_executable(protoDemo ${protoDemo_list})
+target_link_libraries(protoDemo pthread protobuf)
+# add_subdirectory(protoExample)

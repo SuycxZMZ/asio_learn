@@ -1,7 +1,9 @@
 #include "asyncSession.h"
+#include <boost/asio/buffer.hpp>
 #include <boost/asio/detail/socket_ops.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/read.hpp>
 #include <boost/asio/write.hpp>
 #include <chrono>
 #include <cstring>
@@ -149,6 +151,7 @@ void Session::handle_read(const boost::system::error_code &ec,
     }
   } else {
     std::cout << "handle_read error and errorno:" << ec.value() << std::endl;
+    Close();
     _server->EraseSession(_uuid);
   }
 }
@@ -166,6 +169,7 @@ void Session::handle_write(const boost::system::error_code &ec,
     }
   } else {
     std::cout << "handle_write error and errorno=" << ec.value() << std::endl;
+    Close();
     _server->EraseSession(_uuid);
   }
 }
@@ -238,6 +242,72 @@ void Server::handle_accept(std::shared_ptr<Session> newSession,
   start_accept();
 }
 
-void Server::EraseSession(std::string &uuid) {
-  _sessions.erase(uuid);
+void Server::EraseSession(std::string &uuid) { _sessions.erase(uuid); }
+
+/// 简单的切包处理逻辑，但是不好
+/// 因为长度没到就不会触发回调
+/// async_read:监听读事件获取指定字节数才触发回调函数
+void Session::Close() {
+  _socket.close();
+  _b_close = true;
+}
+
+void Session::Start2() {
+  _recv_head_node->Clear();
+  async_read(_socket, buffer(_recv_head_node->_data, HEADER_LENGTH),
+             std::bind(&Session::handle_read_head, this, std::placeholders::_1,
+                       std::placeholders::_2, shared_from_this()));
+}
+
+void Session::handle_read_head(const boost::system::error_code &ec,
+                               size_t bytes_transferred,
+                               std::shared_ptr<Session> _self_shared) {
+  if (!ec) {
+    if (bytes_transferred < HEADER_LENGTH) {
+      std::cout << "header is too short !!!" << std::endl;
+      Close();
+      _server->EraseSession(_uuid);
+      return;
+    }
+    // 解析头
+    short data_len = 0;
+    memcpy(&data_len, _recv_head_node->_data, HEADER_LENGTH);
+    data_len = boost::asio::detail::socket_ops::network_to_host_short(data_len);
+    if (data_len > MAX_LENGTH) {
+      std::cout << "invalid data length is " << data_len << std::endl;
+      _server->EraseSession(_uuid);
+      return;
+    }
+    _recv_msg_node = std::make_shared<MsgNode>(data_len);
+    async_read(_socket, buffer(_recv_msg_node->_data, _recv_msg_node->_max_len),
+               std::bind(&Session::handle_read_msg, this, std::placeholders::_1,
+                         std::placeholders::_2,
+                         shared_from_this()));
+  } else {
+    std::cout << "handle_read_head error and errorno=" << ec.value()
+              << " err:" << ec.what() << std::endl;
+    Close();
+    _server->EraseSession(_uuid);
+  }
+}
+
+void Session::handle_read_msg(const boost::system::error_code &ec,
+                     size_t bytes_transferred,
+                     std::shared_ptr<Session> _self_shared) {
+  if (!ec) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    _recv_msg_node->_data[_recv_msg_node->_max_len] = '\0';
+    std::cout << "recv msg:" << _recv_msg_node->_data << std::endl;
+    Send(_recv_msg_node->_data, _recv_msg_node->_max_len);
+    _recv_head_node->Clear();
+    async_read(_socket, buffer(_recv_head_node->_data, HEADER_LENGTH),
+               std::bind(&Session::handle_read_head, this,
+                         std::placeholders::_1, std::placeholders::_2,
+                         _self_shared));
+  } else {
+    std::cout << "handle_read_msg error and errorno=" << ec.value()
+              << " err:" << ec.what() << std::endl;
+    Close();
+    _server->EraseSession(_uuid);
+  }
 }
