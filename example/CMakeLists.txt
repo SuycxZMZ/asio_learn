@@ -4,10 +4,8 @@ find_package(Boost REQUIRED COMPONENTS system)
 set(COMMON_LIBS Boost::system pthread jsoncpp)
 
 set(TEST_SOURCES
-  boostTest.cc
-  syncClient.cc
-  syncServer.cc
   ./jsonExample/jsonDemo.cc
+  ./logicServer/jsonClient.cc
 )
 
 # 自定义函数，用于编译每个 .cc 文件为同名的可执行文件
@@ -22,16 +20,8 @@ foreach(source_file ${TEST_SOURCES})
   add_test_executable(${source_file})
 endforeach()
 
-# 如果有单独的文件或需要特殊处理的，可以手动添加，例如：
-set(testall_list endpoints.cc testall.cc)
-add_executable(testall ${testall_list})
-target_link_libraries(testall ${COMMON_LIBS})
-
-set(asyncServer_list asyncServer.cc asyncSession.cc)
-add_executable(asyncServer ${asyncServer_list})
-target_link_libraries(asyncServer ${COMMON_LIBS})
-
 set(protoDemo_list protoExample/demo.cc protoExample/msg.pb.cc)
 add_executable(protoDemo ${protoDemo_list})
 target_link_libraries(protoDemo pthread protobuf)
-# add_subdirectory(protoExample)
+
+add_subdirectory(logicServer)
