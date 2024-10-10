@@ -1,4 +1,5 @@
 #include "asyncSession.h"
+#include <boost/asio/detail/socket_ops.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
@@ -55,6 +56,8 @@ void Session::handle_read(const boost::system::error_code &ec,
         // 获取头部数据
         short data_len = 0;
         memcpy(&data_len, _recv_head_node->_data, HEADER_LENGTH);
+        data_len =
+            boost::asio::detail::socket_ops::network_to_host_short(data_len);
         std::cout << "header length:" << data_len << std::endl;
         // 头部长度非法
         if (data_len > MAX_LENGTH) {
@@ -186,6 +189,12 @@ void Session::Send(char *msg, int max_length) {
   // 为true，队列里有数据，不发送，只加到队列中
   bool pending = false;
   std::lock_guard<std::mutex> lock(_send_mtx);
+  int send_que_size = _send_queue.size();
+  if (send_que_size > MAX_SENDQUE_SIZE) {
+    std::cout << "session:" << _uuid << " send que fulled, and size is"
+              << MAX_SENDQUE_SIZE << std::endl;
+    return;
+  }
   if (!_send_queue.empty()) {
     pending = true;
   }
