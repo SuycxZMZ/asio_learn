@@ -3,6 +3,7 @@ set(ALL_SOURCE_LIST
   CSession.cc 
   CServer.cc 
   LogicSystem.cc
+  AsioServicePool.cc
   logicServer.cc
 )
 add_executable(logicServer ${ALL_SOURCE_LIST})

@@ -3,6 +3,7 @@
 #include <boost/asio.hpp>
 #include <map>
 #include <memory.h>
+#include <mutex>
 
 using boost::asio::ip::tcp;
 class CServer {
@@ -18,4 +19,5 @@ private:
   short _port;
   tcp::acceptor _acceptor;
   std::map<std::string, std::shared_ptr<CSession>> _sessions;
+  std::mutex _mutex;
 };

@@ -1,3 +1,4 @@
+#include "AsioServicePool.h"
 #include "CServer.h"
 #include <csignal>
 #include <iostream>
@@ -10,9 +11,13 @@ std::mutex mutex_quit;
 
 int main() {
   try {
+    auto pool = AsioServicePool::GetInstance();
     boost::asio::io_context io_context;
     boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
-    signals.async_wait([&io_context](auto, auto) { io_context.stop(); });
+    signals.async_wait([&io_context, pool](auto, auto) {
+      io_context.stop();
+      pool->Stop();
+    });
     CServer s(io_context, 8001);
     io_context.run();
   } catch (std::exception &e) {

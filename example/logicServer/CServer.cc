@@ -1,5 +1,6 @@
 #include "CServer.h"
 #include "CSession.h"
+#include "AsioServicePool.h"
 #include <functional>
 #include <memory>
 
@@ -16,14 +17,17 @@ void CServer::HandleAccept(std::shared_ptr<CSession> new_session,
                            const boost::system::error_code &error) {
   if (!error) {
     new_session->Start();
-    _sessions.emplace(new_session->GetUuid(), new_session);
+    std::lock_guard<std::mutex> lock(_mutex);
+    _sessions.insert(make_pair(new_session->GetUuid(), new_session));
   } else {
-    std::cout << "session accept failed, error is " << error.what()
-              << std::endl;
+    cout << "session accept failed, error is " << error.what() << endl;
   }
+
+  StartAccept();
 }
 void CServer::StartAccept() {
-  auto new_session = std::make_shared<CSession>(_io_context, this);
+  auto& io_context = AsioServicePool::GetInstance()->GetIOService();
+  auto new_session = std::make_shared<CSession>(io_context, this);
   _acceptor.async_accept(new_session->GetSocket(),
                          std::bind(&CServer::HandleAccept, this, new_session,
                                    std::placeholders::_1));
