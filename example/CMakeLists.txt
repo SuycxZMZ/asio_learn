@@ -26,3 +26,4 @@ add_executable(protoDemo ${protoDemo_list})
 target_link_libraries(protoDemo pthread protobuf)
 
 add_subdirectory(logicServer)
+add_subdirectory(BoostCoServer)
