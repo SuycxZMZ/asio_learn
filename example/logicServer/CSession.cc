@@ -215,7 +215,7 @@ void CSession::HandleRead(const boost::system::error_code &error,
         continue;
       }
     } else {
-      std::cout << "handle read failed, error is " << error.what() << endl;
+      std::cout << "handle read failed, error is " << error.message() << endl;
       Close();
       _server->ClearSession(_uuid);
     }
@@ -238,7 +238,7 @@ void CSession::HandleWrite(const boost::system::error_code &error,
                       shared_from_this()));
       }
     } else {
-      std::cout << "handle write failed, error is " << error.what() << endl;
+      std::cout << "handle write failed, error is " << error.message() << endl;
       Close();
       _server->ClearSession(_uuid);
     }

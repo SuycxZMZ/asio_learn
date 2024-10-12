@@ -20,7 +20,7 @@ void CServer::HandleAccept(std::shared_ptr<CSession> new_session,
     std::lock_guard<std::mutex> lock(_mutex);
     _sessions.insert(make_pair(new_session->GetUuid(), new_session));
   } else {
-    cout << "session accept failed, error is " << error.what() << endl;
+    cout << "session accept failed, error is " << error.message() << endl;
   }
 
   StartAccept();
