@@ -7,6 +7,7 @@ set(TEST_SOURCES
   ./jsonExample/jsonDemo.cc
   ./coExample/coClient.cc
   ./coExample/coServer.cc
+  ./beastHttpServer/beastHttpServer.cc
 )
 
 # 自定义函数，用于编译每个 .cc 文件为同名的可执行文件
