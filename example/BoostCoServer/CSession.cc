@@ -32,15 +32,18 @@ CSession::~CSession() {
     std::cout << "exception is : " << exp.what() << std::endl;
   }
 }
+
 std::string &CSession::GetUuid() { return _uuid; }
+
 boost::asio::ip::tcp::socket &CSession::GetSocket() { return _socket; }
+
 void CSession::Start() {
   auto shared_this = shared_from_this();
   boost::asio::co_spawn(
       _io_context,
       [shared_this, this]() -> boost::asio::awaitable<void> {
         try {
-          for (; !_b_close;) {
+          for (; !_b_close; ) {
             _recv_head_node->Clear();
             std::size_t n = co_await boost::asio::async_read(
                 _socket,
@@ -53,7 +56,7 @@ void CSession::Start() {
               co_return;
             }
 
-            // 获取头部数据
+            // 获取头部id数据
             short msg_id = 0;
             memcpy(&msg_id, _recv_head_node->_data, HEAD_ID_LEN);
             msg_id =
@@ -113,13 +116,14 @@ void CSession::Send(const char *msg, short max_length, short msgid) {
               << MAX_SENDQUE << std::endl;
     return;
   }
-  _send_que.push(std::make_shared<SendNode>(msg, max_length, msgid));
-  if (send_que_size > 0)
+  _send_que.emplace(std::make_shared<SendNode>(msg, max_length, msgid));
+  if (send_que_size > 0) {
     return;
+  }
   auto msg_node = _send_que.front();
   // 还是用异步来发送
   boost::asio::async_write(
-      _socket, boost::asio::buffer(msg_node->_data, msg_node->_cur_len),
+      _socket, boost::asio::buffer(msg_node->_data, msg_node->_total_len),
       std::bind(&CSession::HandleWrite, this, std::placeholders::_1,
                 shared_from_this()));
 }
@@ -137,6 +141,7 @@ void CSession::HandleWrite(const boost::system::error_code &error,
     if (!error) {
       std::unique_lock<std::mutex> lock(_send_mutex);
       _send_que.pop();
+      std::cout << "---------finish one send node---------" << std::endl;
       if (!_send_que.empty()) {
         auto msg_node = _send_que.front();
         lock.unlock();

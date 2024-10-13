@@ -13,10 +13,8 @@ set(LIBS
   ${COMMON_LIBS}
 )
 
-set(logicServer_SRC logicServer.cc)
-add_executable(logicServer ${logicServer_SRC})
+add_executable(logicServer logicServer.cc)
 target_link_libraries(logicServer ${LIBS})
 
-set(jsonClient_SRC jsonClient.cc)
-add_executable(jsonClient ${jsonClient_SRC})
+add_executable(jsonClient jsonClient.cc)
 target_link_libraries(jsonClient ${LIBS})
