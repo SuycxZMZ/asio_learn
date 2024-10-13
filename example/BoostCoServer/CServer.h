@@ -1,7 +1,3 @@
-//
-// Created by suycx on 24-10-12.
-//
-
 #ifndef CSERVER_H
 #define CSERVER_H
 
