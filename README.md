@@ -16,3 +16,8 @@ protobuf简单使用，[grpc和配套的protobuf安装](https://www.llfc.club/ca
 ## [example/coExample](example/coExample)
 
 `boost`协程例子，一个单线程异步echoServer和一个同步client
+
+## [example/BoostCoServer](example/BoostCoServer)
+
+接收部分使用boost协程，一个简单的分层服务器例子，使用多个`io_context`，每个汇话最终回调把接收信息加入逻辑处理器的任务队列，
+逻辑处理线程从任务队列中取任务执行。
