@@ -28,3 +28,4 @@ target_link_libraries(protoDemo pthread protobuf)
 
 add_subdirectory(logicServer)
 add_subdirectory(BoostCoServer)
+add_subdirectory(grpcExample)

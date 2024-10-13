@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package hello;
+
+service Greeter {
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+message HelloRequest {
+  string message = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}
+
+// 手动编译命令
+// protoc --cpp_out=. --grpc_out=. --plugin=protoc-gen-grpc=$(which grpc_cpp_plugin) hello.proto
