@@ -5,6 +5,7 @@ set(COSERVER_LIB_SRC
   CServer.cc
   CSession.cc
   AsioServicePool.cc
+  LogicSystem.cc
 )
 
 add_library(BoostCoServer SHARED ${COSERVER_LIB_SRC})
