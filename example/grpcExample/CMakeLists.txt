@@ -4,7 +4,7 @@ find_package(gRPC CONFIG REQUIRED)
 set(SERVER_SRC
   demo.pb.cc
   demo.grpc.pb.cc
-  grpcDemoServer.cc 
+  grpcDemoServer.cc
 )
 
 set(Client_SRC
@@ -18,8 +18,10 @@ add_executable(grpcDemoClient ${Client_SRC})
 
 target_link_libraries(grpcDemoServer
   gRPC::grpc++
+  protobuf
 )
 
 target_link_libraries(grpcDemoClient
   gRPC::grpc++
+  protobuf
 )

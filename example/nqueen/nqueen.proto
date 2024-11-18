@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package nqueen;
+
+message TaskRequest {
+    int32 n = 1;
+    repeated int32 partial = 2;
+}
+
+message TaskResult {
+    int32 solutions = 1;
+}
+
+service NQueenSolver {
+    rpc Solve(TaskRequest) returns (TaskResult);
+}
