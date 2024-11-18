@@ -203,8 +203,10 @@ int main(int argc, char** argv) {
 
     // 对比结果
     std::cout << "\n===== Comparison =====" << std::endl;
-    std::cout << "Distributed Solutions: " << distributed_solutions << " | Time: " << distributed_time << " seconds." << std::endl;
-    std::cout << "Local Solutions:      " << local_solutions << " | Time: " << local_time << " seconds." << std::endl;
+    std::cout << "Distributed Solutions: " << distributed_solutions
+        << " | Time: " << distributed_time << " seconds." << std::endl;
+    std::cout << "Local Solutions:      " << local_solutions
+        << " | Time: " << local_time << " seconds." << std::endl;
 
     // 验证解法数量是否一致
     if (distributed_solutions == local_solutions) {
