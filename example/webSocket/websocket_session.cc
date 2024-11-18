@@ -71,7 +71,7 @@ void websocket_session::on_read(beast::error_code ec, std::size_t)
                     shared_from_this()));
 }
 
-void websocket_session:: send(boost::shared_ptr<std::string const> const& ss)
+void websocket_session::send(boost::shared_ptr<std::string const> const& ss)
 {
     // Post our work to the strand, this ensures
     // that the members of `this` will not be

@@ -21,10 +21,18 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2 -DNDEBUG")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+# 设置 CMP0144 策略，使用大写环境变量名
+if(POLICY CMP0144)
+  cmake_policy(SET CMP0144 NEW)
+endif()
+
 include_directories(
 #  ${PROJECT_SOURCE_DIR}/src
   /usr/local/include/
+  /usr/local/boost_1_86_0/include/
 )
 
 # 设置项目库文件搜索路径 -L

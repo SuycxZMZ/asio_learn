@@ -26,8 +26,7 @@
 #include <iostream>
 #include <vector>
 
-int
-main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     // Check command line arguments.
     if (argc != 5)

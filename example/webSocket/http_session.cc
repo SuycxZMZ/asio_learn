@@ -188,8 +188,7 @@ http_session::http_session(
 {
 }
 
-void http_session::run()
-{
+void http_session::run() {
     do_read();
 }
 
